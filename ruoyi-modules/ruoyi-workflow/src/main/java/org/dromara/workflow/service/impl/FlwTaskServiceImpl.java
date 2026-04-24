@@ -232,8 +232,9 @@ public class FlwTaskServiceImpl implements IFlwTaskService {
         if (BusinessStatusEnum.isDraftOrCancelOrBack(ins.getFlowStatus())) {
             variables.put(SUBMIT, true);
         }
+        Map<String, Object> insVariableMap = ins.getVariableMap();
         // 设置弹窗处理人
-        Map<String, Object> assigneeMap = setPopAssigneeMap(completeTaskBo.getAssigneeMap(), ins.getVariableMap());
+        Map<String, Object> assigneeMap = setPopAssigneeMap(completeTaskBo.getAssigneeMap(), insVariableMap);
         if (CollUtil.isNotEmpty(assigneeMap)) {
             variables.putAll(assigneeMap);
         }
@@ -249,7 +250,7 @@ public class FlwTaskServiceImpl implements IFlwTaskService {
             .flowStatus(BusinessStatusEnum.WAITING.getStatus())
             .hisStatus(TaskStatusEnum.PASS.getStatus())
             .hisTaskExt(completeTaskBo.getFileId());
-        Boolean autoPass = Convert.toBool(variables.getOrDefault(AUTO_PASS, false));
+        Boolean autoPass = Convert.toBool(insVariableMap.getOrDefault(AUTO_PASS, false));
         skipTask(taskId, flowParams, flowTask.getInstanceId(), autoPass);
         return true;
     }
