@@ -10,6 +10,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <modules>
+        <module>ruoyi-asset</module>
         <module>ruoyi-demo</module>
         <module>ruoyi-generator</module>
         <module>ruoyi-job</module>
