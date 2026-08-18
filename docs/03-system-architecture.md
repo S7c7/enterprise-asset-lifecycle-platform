@@ -7,6 +7,7 @@ flowchart LR
     U[用户浏览器] --> V[plus-ui / Vue 3]
     V -->|HTTP / JSON| A[ruoyi-admin / Spring Boot]
     A --> S[ruoyi-asset 资产业务模块]
+    S --> W[ruoyi-workflow / WarmFlow]
     A --> R[ruoyi-system 权限与组织]
     S --> M[(MySQL)]
     A --> C[(Redis)]
@@ -25,7 +26,7 @@ org.dromara.asset
 │   └── vo            对外响应模型
 ├── mapper            MyBatis-Plus 数据访问与数据权限
 └── service
-    └── impl           业务规则、唯一性和引用校验
+    └── impl           业务规则、状态机、流程发起与事件同步
 ```
 
 请求链路：
@@ -45,6 +46,8 @@ Vue 页面 → API 封装 → Controller → Service → Mapper → MySQL
 | 操作日志、重复提交防护 | 是 | 否 |
 | 数据权限拦截 | 是 | 字段映射与业务接入 |
 | 资产分类、台账及规则 | 否 | 是 |
+| 流程引擎和任务中心 | 是 | 资产流程定义与业务事件接入 |
+| 资产申请、明细及状态机 | 否 | 是 |
 | 资产页面和 API | 否 | 是 |
 
 ## 4. 权限设计
@@ -52,9 +55,27 @@ Vue 页面 → API 封装 → Controller → Service → Mapper → MySQL
 - Controller 使用 `@SaCheckPermission` 控制接口操作权限。
 - Vue 按钮使用 `v-hasPermi` 控制可见性。
 - `AssetInfoMapper` 使用 `@DataPermission` 将组织数据权限映射到 `dept_id`，将本人范围映射到 `keeper_id`。
-- 租户隔离复用 `TenantEntity` 和框架租户插件，两张业务表均包含 `tenant_id`。
+- 租户隔离复用 `TenantEntity` 和框架租户插件，四张业务表均包含 `tenant_id`。
 
-## 5. 技术基线
+## 5. 申请审批链路
+
+```mermaid
+sequenceDiagram
+    participant U as 申请人
+    participant A as ruoyi-asset
+    participant W as WarmFlow
+    participant P as 审批人
+    U->>A: 保存申请及明细
+    U->>A: 提交申请
+    A->>W: 启动 asset_apply 并完成申请人节点
+    W-->>A: ProcessEvent(waiting)
+    A->>A: 同步业务状态为审批中
+    P->>W: 部门/资产管理审批
+    W-->>A: ProcessEvent(finish/back/...)
+    A->>A: 同步最终状态
+```
+
+## 6. 技术基线
 
 - Java 17 编译目标
 - Spring Boot 3.5.x
