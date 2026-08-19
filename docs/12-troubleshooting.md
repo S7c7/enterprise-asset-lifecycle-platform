@@ -98,3 +98,10 @@ pnpm build:prod
 ### 排障说明：流程定义不存在
 
 检查发现本地 `flow_definition` 初始为空。仅编写业务提交接口会导致运行时报“流程定义不存在”，因此第二阶段初始化 SQL 同时写入并发布 `asset_apply` 的定义、节点和连线；另保留 JSON，便于后续从流程设计器重新导入和调整审批人。
+
+## 5. 公开仓库前的密钥治理
+
+- 已检查当前工作区、自定义提交和 Git 历史，未发现 GitHub、OpenAI、AWS 等典型 Token 或 PEM 私钥。
+- 本地数据库密码原先位于受 Git 跟踪的 `application-dev.yml`，存在未来误提交风险；现已迁移到根目录 `.env`。
+- 后端开发/生产配置中的数据库、Redis、短信和第三方登录凭据统一改为环境变量引用。
+- `.env` 永久忽略，只提交 `.env.example`；启动方式记录在 `docs/02-local-configuration.md`。

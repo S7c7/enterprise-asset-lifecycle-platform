@@ -9,7 +9,7 @@ spring.boot.admin.client:
       username: ${spring.boot.admin.client.username}
       userpassword: ${spring.boot.admin.client.password}
   username: @monitor.username@
-  password: @monitor.password@
+  password: ${ADMIN_CLIENT_PASSWORD:}
 
 --- # snail-job 配置
 snail-job:
@@ -17,7 +17,7 @@ snail-job:
   # 需要在 SnailJob 后台组管理创建对应名称的组,然后创建任务的时候选择对应的组,才能正确分派任务
   group: "ruoyi_group"
   # SnailJob 接入验证令牌 详见 script/sql/ry_job.sql `sj_group_config` 表
-  token: "SJ_cKqBTPzCsWA3VyuCfFoccmuIEGXjr5KT"
+  token: ${SNAIL_JOB_TOKEN:}
   server:
     host: 127.0.0.1
     port: 17888
@@ -48,8 +48,8 @@ spring:
           # jdbc 所有参数配置参考 https://lionli.blog.csdn.net/article/details/122018562
           # rewriteBatchedStatements=true 批处理优化 大幅提升批量插入更新删除性能(对数据库有性能损耗 使用批量操作应考虑性能问题)
           url: jdbc:mysql://localhost:3306/ry-vue?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&serverTimezone=GMT%2B8&autoReconnect=true&rewriteBatchedStatements=true&allowPublicKeyRetrieval=true&nullCatalogMeansCurrent=true
-          username: root
-          password: root
+          username: ${MYSQL_USERNAME}
+          password: ${MYSQL_PASSWORD}
 #        # 从库数据源
 #        slave:
 #          lazy: true
@@ -102,7 +102,7 @@ spring.data:
     # 数据库索引
     database: 0
     # redis 密码必须配置
-    password: ruoyi123
+    password: ${REDIS_PASSWORD}
     # 连接超时时间
     timeout: 10s
     # 是否开启ssl
@@ -195,76 +195,76 @@ justauth:
       # maxkey 服务器地址
       # 注意 如下均配置均不需要修改 maxkey 已经内置好了数据
       server-url: http://sso.maxkey.top
-      client-id: 876892492581044224
-      client-secret: x1Y5MTMwNzIwMjMxNTM4NDc3Mzche8
+      client-id: ${OAUTH_MAXKEY_CLIENT_ID:}
+      client-secret: ${OAUTH_MAXKEY_CLIENT_SECRET:}
       redirect-uri: ${justauth.address}/social-callback?source=maxkey
     topiam:
       # topiam 服务器地址
       server-url: http://127.0.0.1:1898/api/v1/authorize/y0q************spq***********8ol
-      client-id: 449c4*********937************759
-      client-secret: ac7***********1e0************28d
+      client-id: ${OAUTH_TOPIAM_CLIENT_ID:}
+      client-secret: ${OAUTH_TOPIAM_CLIENT_SECRET:}
       redirect-uri: ${justauth.address}/social-callback?source=topiam
       scopes: [openid, email, phone, profile]
     qq:
-      client-id: 10**********6
-      client-secret: 1f7d08**********5b7**********29e
+      client-id: ${OAUTH_QQ_CLIENT_ID:}
+      client-secret: ${OAUTH_QQ_CLIENT_SECRET:}
       redirect-uri: ${justauth.address}/social-callback?source=qq
       union-id: false
     weibo:
-      client-id: 10**********6
-      client-secret: 1f7d08**********5b7**********29e
+      client-id: ${OAUTH_WEIBO_CLIENT_ID:}
+      client-secret: ${OAUTH_WEIBO_CLIENT_SECRET:}
       redirect-uri: ${justauth.address}/social-callback?source=weibo
     gitee:
-      client-id: 91436b7940090d09c72c7daf85b959cfd5f215d67eea73acbf61b6b590751a98
-      client-secret: 02c6fcfd70342980cd8dd2f2c06c1a350645d76c754d7a264c4e125f9ba915ac
+      client-id: ${OAUTH_GITEE_CLIENT_ID:}
+      client-secret: ${OAUTH_GITEE_CLIENT_SECRET:}
       redirect-uri: ${justauth.address}/social-callback?source=gitee
     dingtalk:
-      client-id: 10**********6
-      client-secret: 1f7d08**********5b7**********29e
+      client-id: ${OAUTH_DINGTALK_CLIENT_ID:}
+      client-secret: ${OAUTH_DINGTALK_CLIENT_SECRET:}
       redirect-uri: ${justauth.address}/social-callback?source=dingtalk
     baidu:
-      client-id: 10**********6
-      client-secret: 1f7d08**********5b7**********29e
+      client-id: ${OAUTH_BAIDU_CLIENT_ID:}
+      client-secret: ${OAUTH_BAIDU_CLIENT_SECRET:}
       redirect-uri: ${justauth.address}/social-callback?source=baidu
     csdn:
-      client-id: 10**********6
-      client-secret: 1f7d08**********5b7**********29e
+      client-id: ${OAUTH_CSDN_CLIENT_ID:}
+      client-secret: ${OAUTH_CSDN_CLIENT_SECRET:}
       redirect-uri: ${justauth.address}/social-callback?source=csdn
     coding:
-      client-id: 10**********6
-      client-secret: 1f7d08**********5b7**********29e
+      client-id: ${OAUTH_CODING_CLIENT_ID:}
+      client-secret: ${OAUTH_CODING_CLIENT_SECRET:}
       redirect-uri: ${justauth.address}/social-callback?source=coding
       coding-group-name: xx
     oschina:
-      client-id: 10**********6
-      client-secret: 1f7d08**********5b7**********29e
+      client-id: ${OAUTH_OSCHINA_CLIENT_ID:}
+      client-secret: ${OAUTH_OSCHINA_CLIENT_SECRET:}
       redirect-uri: ${justauth.address}/social-callback?source=oschina
     alipay_wallet:
-      client-id: 10**********6
-      client-secret: 1f7d08**********5b7**********29e
+      client-id: ${OAUTH_ALIPAY_WALLET_CLIENT_ID:}
+      client-secret: ${OAUTH_ALIPAY_WALLET_CLIENT_SECRET:}
       redirect-uri: ${justauth.address}/social-callback?source=alipay_wallet
       alipay-public-key: MIIB**************DAQAB
     wechat_open:
-      client-id: 10**********6
-      client-secret: 1f7d08**********5b7**********29e
+      client-id: ${OAUTH_WECHAT_OPEN_CLIENT_ID:}
+      client-secret: ${OAUTH_WECHAT_OPEN_CLIENT_SECRET:}
       redirect-uri: ${justauth.address}/social-callback?source=wechat_open
     wechat_mp:
-      client-id: 10**********6
-      client-secret: 1f7d08**********5b7**********29e
+      client-id: ${OAUTH_WECHAT_MP_CLIENT_ID:}
+      client-secret: ${OAUTH_WECHAT_MP_CLIENT_SECRET:}
       redirect-uri: ${justauth.address}/social-callback?source=wechat_mp
     wechat_enterprise:
-      client-id: 10**********6
-      client-secret: 1f7d08**********5b7**********29e
+      client-id: ${OAUTH_WECHAT_ENTERPRISE_CLIENT_ID:}
+      client-secret: ${OAUTH_WECHAT_ENTERPRISE_CLIENT_SECRET:}
       redirect-uri: ${justauth.address}/social-callback?source=wechat_enterprise
       agent-id: 1000002
     gitlab:
-      client-id: 10**********6
-      client-secret: 1f7d08**********5b7**********29e
+      client-id: ${OAUTH_GITLAB_CLIENT_ID:}
+      client-secret: ${OAUTH_GITLAB_CLIENT_SECRET:}
       redirect-uri: ${justauth.address}/social-callback?source=gitlab
     gitea:
       # 前端改动 https://gitee.com/JavaLionLi/plus-ui/pulls/204
       # gitea 服务器地址
       server-url: https://demo.gitea.com
-      client-id: 10**********6
-      client-secret: 1f7d08**********5b7**********29e
+      client-id: ${OAUTH_GITEA_CLIENT_ID:}
+      client-secret: ${OAUTH_GITEA_CLIENT_SECRET:}
       redirect-uri: ${justauth.address}/social-callback?source=gitea
