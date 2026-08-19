@@ -1,0 +1,18 @@
+{
+  "nodeList": [
+    {"nodeType":"0","nodeCode":"asset_apply_start","nodeName":"开始","permissionFlag":null,"nodeRatio":"0.000","formCustom":"N","formPath":null,"ext":"[]","coordinate":"200,200|200,200","version":"1","skipList":[{"skipType":"PASS","skipCondition":null,"skipName":null,"nowNodeCode":"asset_apply_start","nextNodeCode":"asset_apply_submit","coordinate":"220,200;310,200"}]},
+    {"nodeType":"1","nodeCode":"asset_apply_submit","nodeName":"申请人提交","permissionFlag":"","nodeRatio":"0.000","formCustom":"N","formPath":null,"ext":"[{\"code\":\"ButtonPermissionEnum\",\"value\":\"back,termination,file,copy\"}]","coordinate":"360,200|360,200","version":"1","skipList":[{"skipType":"PASS","skipCondition":null,"skipName":null,"nowNodeCode":"asset_apply_submit","nextNodeCode":"asset_apply_dept","coordinate":"410,200;490,200"}]},
+    {"nodeType":"1","nodeCode":"asset_apply_dept","nodeName":"部门负责人审批","permissionFlag":"role:1","nodeRatio":"0.000","formCustom":"N","formPath":null,"ext":"[{\"code\":\"ButtonPermissionEnum\",\"value\":\"back,termination,copy,transfer,trust,file\"}]","coordinate":"540,200|540,200","version":"1","skipList":[{"skipType":"PASS","skipCondition":null,"skipName":null,"nowNodeCode":"asset_apply_dept","nextNodeCode":"asset_apply_manager","coordinate":"590,200;670,200"}]},
+    {"nodeType":"1","nodeCode":"asset_apply_manager","nodeName":"资产管理员审批","permissionFlag":"role:1","nodeRatio":"0.000","formCustom":"N","formPath":null,"ext":"[{\"code\":\"ButtonPermissionEnum\",\"value\":\"back,termination,copy,transfer,trust,file\"}]","coordinate":"720,200|720,200","version":"1","skipList":[{"skipType":"PASS","skipCondition":null,"skipName":null,"nowNodeCode":"asset_apply_manager","nextNodeCode":"asset_apply_end","coordinate":"770,200;880,200"}]},
+    {"nodeType":"2","nodeCode":"asset_apply_end","nodeName":"结束","permissionFlag":null,"nodeRatio":"0.000","formCustom":"N","formPath":null,"ext":"[]","coordinate":"900,200|900,200","version":"1","skipList":[]}
+  ],
+  "flowCode":"asset_apply",
+  "flowName":"资产申请审批",
+  "modelValue":"CLASSICS",
+  "category":"110",
+  "version":"1",
+  "formCustom":"N",
+  "formPath":"/asset/application/detail/index",
+  "listenerType":null,
+  "listenerPath":null
+}
