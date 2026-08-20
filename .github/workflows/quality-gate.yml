@@ -61,8 +61,8 @@ jobs:
       - name: Lint asset domain
         run: pnpm exec eslint src/views/asset src/api/asset
 
-      - name: Type-check asset domain
-        run: pnpm typecheck:asset
-
       - name: Build production bundle
         run: pnpm build:prod
+
+      - name: Type-check asset domain
+        run: pnpm typecheck:asset
