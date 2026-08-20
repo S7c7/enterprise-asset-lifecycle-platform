@@ -106,7 +106,7 @@ public class AssetInfoServiceImpl implements IAssetInfoService {
         entity.setAssetStatus(StringUtils.isBlank(entity.getAssetStatus()) ? "0" : entity.getAssetStatus());
     }
 
-    private void validEntityBeforeSave(AssetInfo entity) {
+    void validEntityBeforeSave(AssetInfo entity) {
         boolean duplicateCode = baseMapper.exists(Wrappers.<AssetInfo>lambdaQuery()
             .eq(AssetInfo::getAssetCode, entity.getAssetCode())
             .ne(entity.getAssetId() != null, AssetInfo::getAssetId, entity.getAssetId()));

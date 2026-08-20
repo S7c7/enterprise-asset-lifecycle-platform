@@ -5,8 +5,8 @@ import { AssetApplicationForm, AssetApplicationQuery, AssetApplicationVO } from 
 export const listAssetApplication = (query: AssetApplicationQuery): AxiosPromise<AssetApplicationVO[]> =>
   request({ url: '/asset/application/list', method: 'get', params: query });
 
-export const getAssetApplication = (applicationId: string | number): AxiosPromise<AssetApplicationVO> =>
-  request({ url: `/asset/application/${applicationId}`, method: 'get' });
+export const getAssetApplication = (applicationId: string | number, taskId?: string | number): AxiosPromise<AssetApplicationVO> =>
+  request({ url: `/asset/application/${applicationId}`, method: 'get', params: { taskId } });
 
 export const addAssetApplication = (data: AssetApplicationForm): AxiosPromise<AssetApplicationVO> =>
   request({ url: '/asset/application', method: 'post', data });

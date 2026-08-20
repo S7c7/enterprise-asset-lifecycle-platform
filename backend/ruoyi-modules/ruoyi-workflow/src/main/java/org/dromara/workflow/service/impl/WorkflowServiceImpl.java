@@ -9,6 +9,8 @@ import org.dromara.common.core.domain.dto.StartProcessReturnDTO;
 import org.dromara.common.core.service.WorkflowService;
 import org.dromara.common.core.utils.StringUtils;
 import org.dromara.warm.flow.orm.entity.FlowInstance;
+import org.dromara.warm.flow.orm.entity.FlowHisTask;
+import org.dromara.workflow.domain.vo.FlowTaskVo;
 import org.dromara.workflow.common.ConditionalOnEnable;
 import org.dromara.workflow.common.enums.MessageTypeEnum;
 import org.dromara.workflow.domain.FlowInstanceBizExt;
@@ -69,6 +71,28 @@ public class WorkflowServiceImpl implements WorkflowService {
     public String getBusinessStatus(String businessId) {
         FlowInstance flowInstance = flwInstanceService.selectInstByBusinessId(businessId);
         return ObjectUtil.isNotNull(flowInstance) ? flowInstance.getFlowStatus() : StringUtils.EMPTY;
+    }
+
+    @Override
+    public boolean canViewBusinessByTask(Long taskId, String businessId, Long userId) {
+        if (taskId == null || StringUtils.isBlank(businessId) || userId == null) {
+            return false;
+        }
+        FlowInstance instance = flwInstanceService.selectByTaskId(taskId);
+        if (instance == null || !businessId.equals(instance.getBusinessId())) {
+            return false;
+        }
+        FlowTaskVo currentTask = flwTaskService.selectById(taskId);
+        if (currentTask != null) {
+            return flwTaskService.currentTaskAllUser(Collections.singletonList(taskId)).stream()
+                .anyMatch(user -> userId.equals(user.getUserId()));
+        }
+        FlowHisTask historyTask = flwTaskService.selectHisTaskById(taskId);
+        if (historyTask == null || StringUtils.isBlank(historyTask.getApprover())) {
+            return false;
+        }
+        return StringUtils.splitList(historyTask.getApprover()).stream()
+            .anyMatch(approver -> userId.toString().equals(approver));
     }
 
     /**

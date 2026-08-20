@@ -108,7 +108,7 @@ public class AssetCategoryServiceImpl implements IAssetCategoryService {
         entity.setStatus(StringUtils.isBlank(entity.getStatus()) ? "0" : entity.getStatus());
     }
 
-    private void validEntityBeforeSave(AssetCategory entity) {
+    void validEntityBeforeSave(AssetCategory entity) {
         boolean duplicateCode = baseMapper.exists(Wrappers.<AssetCategory>lambdaQuery()
             .eq(AssetCategory::getCategoryCode, entity.getCategoryCode())
             .ne(entity.getCategoryId() != null, AssetCategory::getCategoryId, entity.getCategoryId()));

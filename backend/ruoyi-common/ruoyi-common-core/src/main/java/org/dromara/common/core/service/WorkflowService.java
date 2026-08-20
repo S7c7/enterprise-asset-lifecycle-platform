@@ -39,6 +39,16 @@ public interface WorkflowService {
     String getBusinessStatus(String businessId);
 
     /**
+     * 校验用户是否可通过指定流程任务查看业务数据。
+     *
+     * @param taskId     当前或历史任务id
+     * @param businessId 业务id
+     * @param userId     用户id
+     * @return 是否允许查看
+     */
+    boolean canViewBusinessByTask(Long taskId, String businessId, Long userId);
+
+    /**
      * 设置流程变量
      *
      * @param instanceId 流程实例id
