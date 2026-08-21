@@ -14,11 +14,13 @@ erDiagram
     SYS_USER ||--o{ ASSET_APPLICATION : "申请人"
     SYS_DEPT ||--o{ ASSET_APPLICATION : "申请部门"
     ASSET_APPLICATION ||--o| ASSET_ISSUE_ORDER : "审批后生成"
+    ASSET_APPLICATION ||--o| ASSET_RETURN_ORDER : "审批后生成"
     ASSET_ISSUE_ORDER ||--|{ ASSET_HISTORY : "执行写入"
+    ASSET_RETURN_ORDER ||--|{ ASSET_HISTORY : "执行写入"
     ASSET_INFO ||--o{ ASSET_HISTORY : "状态变更"
 ```
 
-数据库初始化脚本：`script/sql/asset/asset_init.sql`。脚本创建六张业务表、三个初始分类、资产菜单按钮，以及已发布的 `asset_apply` 流程定义，可重复执行且不删除业务数据。
+数据库初始化脚本：`script/sql/asset/asset_init.sql`。脚本创建七张业务表、三个初始分类、资产菜单按钮，以及已发布的 `asset_apply` 流程定义，可重复执行且不删除业务数据。
 
 ## 2. asset_category
 
@@ -100,7 +102,18 @@ erDiagram
 
 执行单不复制申请明细，直接引用审批时已经固化的 `asset_application_item`，避免两份明细产生数据偏差。
 
-## 7. asset_history
+## 7. asset_return_order
+
+| 字段 | 类型 | 说明 |
+|---|---|---|
+| return_id/return_no | bigint/varchar(40) | 主键及后端生成的归还单号 |
+| application_id | bigint | 来源归还申请，同一申请只允许一张有效执行单 |
+| returner_id/return_dept_id | bigint | 归还人和申请部门 |
+| status | varchar(20) | pending/completed |
+| returned_by/returned_time | bigint/datetime | 实际执行人和执行时间 |
+| version | bigint | 乐观锁版本，防止重复执行 |
+
+## 8. asset_history
 
 | 字段 | 类型 | 说明 |
 |---|---|---|
@@ -113,15 +126,15 @@ erDiagram
 | before_location/after_location | varchar | 变更前后地点 |
 | operator_id/operation_time | bigint/datetime | 操作人及操作时间 |
 
-履历保存关键字段快照，是只增不改的审计数据；当前 `business_type=issue` 表示领用执行。
+履历保存关键字段快照，是只增不改的审计数据；`business_type=issue/return` 分别表示领用和归还执行。
 
-## 8. 索引策略
+## 9. 索引策略
 
-- 六张表的常用索引都以 `tenant_id` 开头，适配多租户查询。
+- 七张表的常用索引都以 `tenant_id` 开头，适配多租户查询。
 - 分类表索引覆盖父节点和分类编码查询。
 - 台账表索引覆盖资产编码、分类、部门、保管人和状态查询。
 - 编码唯一性由 Service 在租户隔离条件下校验；索引用于查询加速，不使用会阻碍多次逻辑删除的复合唯一约束。
 
-## 9. 当前约束说明
+## 10. 当前约束说明
 
 为兼容逻辑删除和多租户插件，本阶段关联完整性由 Service 维护，暂不建立数据库外键。删除分类前会检查子分类和台账引用；修改台账时会检查分类存在且已启用。

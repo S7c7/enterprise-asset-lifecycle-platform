@@ -55,7 +55,7 @@ Vue 页面 → API 封装 → Controller → Service → Mapper → MySQL
 - Controller 使用 `@SaCheckPermission` 控制接口操作权限。
 - Vue 按钮使用 `v-hasPermi` 控制可见性。
 - `AssetInfoMapper` 使用 `@DataPermission` 将组织数据权限映射到 `dept_id`，将本人范围映射到 `keeper_id`。
-- 租户隔离复用 `TenantEntity` 和框架租户插件，六张业务表均包含 `tenant_id`。
+- 租户隔离复用 `TenantEntity` 和框架租户插件，七张业务表均包含 `tenant_id`。
 
 ## 5. 申请审批链路
 
@@ -73,12 +73,12 @@ sequenceDiagram
     P->>W: 部门/资产管理审批
     W-->>A: ProcessEvent(finish/back/...)
     A->>A: 同步最终状态
-    A->>A: 审批通过的领用申请生成待执行单
-    P->>A: 资产管理员确认实物交付
+    A->>A: 审批通过的领用/归还申请生成待执行单
+    P->>A: 资产管理员确认实物交付或回库
     A->>A: 同一事务更新台账并写入履历
 ```
 
-审批状态与资产状态分离。`finish` 事件只产生待执行授权，资产管理员确认实物已经交付后才更新台账。执行操作使用接口重复提交防护、执行单乐观锁、资产库存状态条件更新和事务回滚四层保护。
+审批状态与资产状态分离。`finish` 事件只产生待执行授权，资产管理员确认实物已经交付或回库后才更新台账。执行操作使用接口重复提交防护、执行单乐观锁、资产当前状态条件更新和事务回滚四层保护。
 
 ## 6. 技术基线
 
