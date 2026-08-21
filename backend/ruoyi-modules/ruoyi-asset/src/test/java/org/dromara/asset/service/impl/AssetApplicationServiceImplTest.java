@@ -8,6 +8,7 @@ import org.dromara.asset.mapper.AssetApplicationMapper;
 import org.dromara.asset.mapper.AssetCategoryMapper;
 import org.dromara.asset.mapper.AssetInfoMapper;
 import org.dromara.asset.service.IAssetIssueOrderService;
+import org.dromara.asset.service.IAssetReturnOrderService;
 import org.dromara.common.core.domain.event.ProcessEvent;
 import org.dromara.common.core.enums.BusinessStatusEnum;
 import org.dromara.common.core.exception.ServiceException;
@@ -49,13 +50,16 @@ class AssetApplicationServiceImplTest {
     private WorkflowService workflowService;
     @Mock
     private IAssetIssueOrderService issueOrderService;
+    @Mock
+    private IAssetReturnOrderService returnOrderService;
 
     private AssetApplicationServiceImpl service;
 
     @BeforeEach
     void setUp() {
         service = new AssetApplicationServiceImpl(
-            applicationMapper, itemMapper, categoryMapper, assetInfoMapper, workflowService, issueOrderService);
+            applicationMapper, itemMapper, categoryMapper, assetInfoMapper, workflowService,
+            issueOrderService, returnOrderService);
     }
 
     @Test
@@ -153,6 +157,7 @@ class AssetApplicationServiceImplTest {
         assertEquals(BusinessStatusEnum.FINISH.getStatus(), application.getStatus());
         verify(applicationMapper).updateById(application);
         verify(issueOrderService).createFromApprovedApplication(application);
+        verify(returnOrderService).createFromApprovedApplication(application);
     }
 
     private MockedStatic<LoginHelper> loginAs(Long userId, boolean superAdmin) {

@@ -22,6 +22,7 @@ import org.dromara.asset.mapper.AssetCategoryMapper;
 import org.dromara.asset.mapper.AssetInfoMapper;
 import org.dromara.asset.service.IAssetApplicationService;
 import org.dromara.asset.service.IAssetIssueOrderService;
+import org.dromara.asset.service.IAssetReturnOrderService;
 import org.dromara.common.core.domain.dto.FlowInstanceBizExtDTO;
 import org.dromara.common.core.domain.dto.StartProcessDTO;
 import org.dromara.common.core.domain.event.ProcessEvent;
@@ -64,6 +65,7 @@ public class AssetApplicationServiceImpl implements IAssetApplicationService {
     private final AssetInfoMapper assetInfoMapper;
     private final WorkflowService workflowService;
     private final IAssetIssueOrderService issueOrderService;
+    private final IAssetReturnOrderService returnOrderService;
 
     @Override
     public AssetApplicationVo queryById(Long applicationId, Long taskId) {
@@ -173,6 +175,7 @@ public class AssetApplicationServiceImpl implements IAssetApplicationService {
             ? BusinessStatusEnum.WAITING.getStatus() : processEvent.getStatus());
         baseMapper.updateById(application);
         issueOrderService.createFromApprovedApplication(application);
+        returnOrderService.createFromApprovedApplication(application);
     }
 
     private AssetApplication requireOwned(Long applicationId) {
@@ -220,6 +223,19 @@ public class AssetApplicationServiceImpl implements IAssetApplicationService {
             assetInfoMapper.selectByIds(assetIds).forEach(asset -> assets.put(asset.getAssetId(), asset));
             if (assets.size() != assetIds.size()) {
                 throw new ServiceException("申请明细包含不存在或无权访问的资产");
+            }
+            if ("use".equals(bo.getApplicationType())
+                && assets.values().stream().anyMatch(asset -> !"0".equals(asset.getAssetStatus()))) {
+                throw new ServiceException("领用申请只能选择库存状态的资产");
+            }
+            if ("return".equals(bo.getApplicationType())) {
+                Long applicantId = LoginHelper.getUserId();
+                if (assets.values().stream().anyMatch(asset -> !"1".equals(asset.getAssetStatus()))) {
+                    throw new ServiceException("归还申请只能选择使用中状态的资产");
+                }
+                if (assets.values().stream().anyMatch(asset -> !applicantId.equals(asset.getKeeperId()))) {
+                    throw new ServiceException("只能归还当前申请人保管的资产");
+                }
             }
         }
         Set<Long> categoryIds = new HashSet<>();

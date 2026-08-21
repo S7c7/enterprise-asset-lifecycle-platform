@@ -131,6 +131,31 @@ CREATE TABLE IF NOT EXISTS asset_issue_order (
     KEY idx_asset_issue_recipient (tenant_id, recipient_id)
 ) ENGINE=InnoDB COMMENT='资产领用执行单';
 
+CREATE TABLE IF NOT EXISTS asset_return_order (
+    return_id            BIGINT(20)     NOT NULL                   COMMENT '归还执行单ID',
+    tenant_id            VARCHAR(20)    DEFAULT '000000'           COMMENT '租户编号',
+    return_no            VARCHAR(40)    NOT NULL                   COMMENT '归还执行单号',
+    application_id       BIGINT(20)     NOT NULL                   COMMENT '来源申请ID',
+    returner_id          BIGINT(20)     NOT NULL                   COMMENT '归还人ID',
+    return_dept_id       BIGINT(20)     NOT NULL                   COMMENT '归还部门ID',
+    status               VARCHAR(20)    DEFAULT 'pending'          COMMENT '执行状态（pending待执行 completed已完成）',
+    returned_by          BIGINT(20)     DEFAULT NULL               COMMENT '执行人ID',
+    returned_time        DATETIME       DEFAULT NULL               COMMENT '执行时间',
+    version              BIGINT(20)     DEFAULT 0                  COMMENT '乐观锁版本',
+    create_dept          BIGINT(20)     DEFAULT NULL               COMMENT '创建部门',
+    create_by            BIGINT(20)     DEFAULT NULL               COMMENT '创建者',
+    create_time          DATETIME       DEFAULT CURRENT_TIMESTAMP  COMMENT '创建时间',
+    update_by            BIGINT(20)     DEFAULT NULL               COMMENT '更新者',
+    update_time          DATETIME       DEFAULT NULL               COMMENT '更新时间',
+    remark               VARCHAR(500)   DEFAULT NULL               COMMENT '备注',
+    del_flag             BIGINT(20)     DEFAULT 0                  COMMENT '删除标志',
+    PRIMARY KEY (return_id),
+    UNIQUE KEY uk_asset_return_application (tenant_id, application_id, del_flag),
+    KEY idx_asset_return_no (tenant_id, return_no, del_flag),
+    KEY idx_asset_return_status (tenant_id, status),
+    KEY idx_asset_return_returner (tenant_id, returner_id)
+) ENGINE=InnoDB COMMENT='资产归还执行单';
+
 CREATE TABLE IF NOT EXISTS asset_history (
     history_id           BIGINT(20)     NOT NULL                   COMMENT '履历ID',
     tenant_id            VARCHAR(20)    DEFAULT '000000'           COMMENT '租户编号',
@@ -207,7 +232,10 @@ INSERT INTO sys_menu VALUES
     (2040, '领用执行单', 2000, 4, 'issue', 'asset/issue/index', '', 1, 0, 'C', '0', '0', 'asset:issue:list', 'takeaway-box', 103, 1, NOW(), NULL, NULL, '审批通过后的资产领用执行'),
     (2041, '执行单查询', 2040, 1, '', '', '', 1, 0, 'F', '0', '0', 'asset:issue:query', '#', 103, 1, NOW(), NULL, NULL, ''),
     (2042, '确认领用出库', 2040, 2, '', '', '', 1, 0, 'F', '0', '0', 'asset:issue:execute', '#', 103, 1, NOW(), NULL, NULL, ''),
-    (2050, '资产履历', 2000, 5, 'history', 'asset/history/index', '', 1, 0, 'C', '0', '0', 'asset:history:list', 'time', 103, 1, NOW(), NULL, NULL, '资产全生命周期变更记录')
+    (2050, '资产履历', 2000, 5, 'history', 'asset/history/index', '', 1, 0, 'C', '0', '0', 'asset:history:list', 'time', 103, 1, NOW(), NULL, NULL, '资产全生命周期变更记录'),
+    (2060, '归还执行单', 2000, 6, 'return', 'asset/return/index', '', 1, 0, 'C', '0', '0', 'asset:return:list', 'refresh-left', 103, 1, NOW(), NULL, NULL, '审批通过后的资产归还执行'),
+    (2061, '归还单查询', 2060, 1, '', '', '', 1, 0, 'F', '0', '0', 'asset:return:query', '#', 103, 1, NOW(), NULL, NULL, ''),
+    (2062, '确认归还入库', 2060, 2, '', '', '', 1, 0, 'F', '0', '0', 'asset:return:execute', '#', 103, 1, NOW(), NULL, NULL, '')
 ON DUPLICATE KEY UPDATE menu_name = VALUES(menu_name), perms = VALUES(perms), update_time = NOW();
 
 INSERT INTO sys_menu VALUES

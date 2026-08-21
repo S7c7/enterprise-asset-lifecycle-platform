@@ -98,7 +98,7 @@
                 placeholder="请选择"
                 @change="(id) => selectAsset(scope.row, id)"
                 ><el-option
-                  v-for="asset in assetOptions"
+                  v-for="asset in selectableAssets"
                   :key="asset.assetId"
                   :label="`${asset.assetCode} ${asset.assetName}`"
                   :value="asset.assetId" /></el-select
@@ -130,6 +130,9 @@
             ><template #default="scope"
               ><el-input-number v-model="scope.row.estimatedUnitPrice" :min="0" :precision="2" :controls="false" style="width: 100%" /></template
           ></el-table-column>
+          <el-table-column v-if="form.applicationType === 'return'" label="归还地点" min-width="155">
+            <template #default="scope"><el-input v-model="scope.row.targetLocation" maxlength="200" placeholder="如：总部资产库" /></template>
+          </el-table-column>
           <el-table-column label="操作" width="70" align="center"
             ><template #default="scope"><el-button link type="danger" icon="Delete" @click="removeItem(scope.$index)" /></template
           ></el-table-column>
@@ -218,6 +221,11 @@ const data = reactive<PageData<AssetApplicationForm, AssetApplicationQuery>>({
 });
 const { form, queryParams, rules } = toRefs(data);
 const formTotal = computed(() => form.value.items.reduce((sum, item) => sum + Number(item.estimatedUnitPrice || 0) * Number(item.quantity || 0), 0));
+const selectableAssets = computed(() => {
+  if (form.value.applicationType === 'use') return assetOptions.value.filter((asset) => asset.assetStatus === '0');
+  if (form.value.applicationType === 'return') return assetOptions.value.filter((asset) => asset.assetStatus === '1');
+  return assetOptions.value;
+});
 const typeLabel = (value: string) => typeOptions.find((item) => item.value === value)?.label || value;
 const statusLabel = (value: string) => statusOptions.find((item) => item.value === value)?.label || value;
 const statusType = (value: string) =>
@@ -286,6 +294,7 @@ const selectAsset = (item: AssetApplicationItemForm, assetId?: string | number) 
   item.specification = asset.specification;
   item.estimatedUnitPrice = Number(asset.originalValue || 0);
   item.quantity = 1;
+  if (form.value.applicationType === 'return') item.targetLocation = '';
 };
 const validateItems = () => {
   if (form.value.items.some((item) => !item.categoryId || !item.itemName || !item.quantity)) {

@@ -8,6 +8,7 @@
 4. [系统架构](../backend/docs/03-system-architecture.md)
 5. [数据库设计](../backend/docs/04-database-design.md)
 6. [领用执行单与资产履历](../backend/docs/06-asset-issue-and-history.md)
+7. [资产归还执行闭环](../backend/docs/07-asset-return-execution.md)
 7. [问题排查记录](../backend/docs/12-troubleshooting.md)
 
 文档记录的是实际代码、数据库和运行验证结果。后续每完成一个生命周期模块，都应同步更新需求、架构、数据库设计和排障记录。
