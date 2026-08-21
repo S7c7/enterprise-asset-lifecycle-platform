@@ -21,6 +21,7 @@ import org.dromara.asset.mapper.AssetApplicationMapper;
 import org.dromara.asset.mapper.AssetCategoryMapper;
 import org.dromara.asset.mapper.AssetInfoMapper;
 import org.dromara.asset.service.IAssetApplicationService;
+import org.dromara.asset.service.IAssetIssueOrderService;
 import org.dromara.common.core.domain.dto.FlowInstanceBizExtDTO;
 import org.dromara.common.core.domain.dto.StartProcessDTO;
 import org.dromara.common.core.domain.event.ProcessEvent;
@@ -62,6 +63,7 @@ public class AssetApplicationServiceImpl implements IAssetApplicationService {
     private final AssetCategoryMapper categoryMapper;
     private final AssetInfoMapper assetInfoMapper;
     private final WorkflowService workflowService;
+    private final IAssetIssueOrderService issueOrderService;
 
     @Override
     public AssetApplicationVo queryById(Long applicationId, Long taskId) {
@@ -170,6 +172,7 @@ public class AssetApplicationServiceImpl implements IAssetApplicationService {
         application.setStatus(Boolean.TRUE.equals(processEvent.getSubmit())
             ? BusinessStatusEnum.WAITING.getStatus() : processEvent.getStatus());
         baseMapper.updateById(application);
+        issueOrderService.createFromApprovedApplication(application);
     }
 
     private AssetApplication requireOwned(Long applicationId) {

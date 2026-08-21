@@ -1,4 +1,4 @@
--- 企业资产全生命周期管理平台（第一阶段）
+-- 企业资产全生命周期管理平台（第三阶段）
 -- 适用数据库：MySQL 8.x
 -- 说明：本脚本可重复执行；不会删除现有业务数据。
 
@@ -106,6 +106,63 @@ CREATE TABLE IF NOT EXISTS asset_application_item (
     KEY idx_asset_application_item_category (tenant_id, category_id)
 ) ENGINE=InnoDB COMMENT='资产申请明细';
 
+CREATE TABLE IF NOT EXISTS asset_issue_order (
+    issue_id             BIGINT(20)     NOT NULL                   COMMENT '领用执行单ID',
+    tenant_id            VARCHAR(20)    DEFAULT '000000'           COMMENT '租户编号',
+    issue_no             VARCHAR(40)    NOT NULL                   COMMENT '领用执行单号',
+    application_id       BIGINT(20)     NOT NULL                   COMMENT '来源申请ID',
+    recipient_id         BIGINT(20)     NOT NULL                   COMMENT '领用人ID',
+    recipient_dept_id    BIGINT(20)     NOT NULL                   COMMENT '领用部门ID',
+    status               VARCHAR(20)    DEFAULT 'pending'          COMMENT '执行状态（pending待执行 completed已完成）',
+    issued_by            BIGINT(20)     DEFAULT NULL               COMMENT '执行人ID',
+    issued_time          DATETIME       DEFAULT NULL               COMMENT '执行时间',
+    version              BIGINT(20)     DEFAULT 0                  COMMENT '乐观锁版本',
+    create_dept          BIGINT(20)     DEFAULT NULL               COMMENT '创建部门',
+    create_by            BIGINT(20)     DEFAULT NULL               COMMENT '创建者',
+    create_time          DATETIME       DEFAULT CURRENT_TIMESTAMP  COMMENT '创建时间',
+    update_by            BIGINT(20)     DEFAULT NULL               COMMENT '更新者',
+    update_time          DATETIME       DEFAULT NULL               COMMENT '更新时间',
+    remark               VARCHAR(500)   DEFAULT NULL               COMMENT '备注',
+    del_flag             BIGINT(20)     DEFAULT 0                  COMMENT '删除标志',
+    PRIMARY KEY (issue_id),
+    UNIQUE KEY uk_asset_issue_application (tenant_id, application_id, del_flag),
+    KEY idx_asset_issue_no (tenant_id, issue_no, del_flag),
+    KEY idx_asset_issue_status (tenant_id, status),
+    KEY idx_asset_issue_recipient (tenant_id, recipient_id)
+) ENGINE=InnoDB COMMENT='资产领用执行单';
+
+CREATE TABLE IF NOT EXISTS asset_history (
+    history_id           BIGINT(20)     NOT NULL                   COMMENT '履历ID',
+    tenant_id            VARCHAR(20)    DEFAULT '000000'           COMMENT '租户编号',
+    asset_id             BIGINT(20)     NOT NULL                   COMMENT '资产ID',
+    asset_code           VARCHAR(64)    NOT NULL                   COMMENT '资产编码快照',
+    asset_name           VARCHAR(200)   NOT NULL                   COMMENT '资产名称快照',
+    business_type        VARCHAR(20)    NOT NULL                   COMMENT '业务类型（issue领用等）',
+    business_id          BIGINT(20)     NOT NULL                   COMMENT '业务单据ID',
+    before_status        CHAR(1)        DEFAULT NULL               COMMENT '变更前状态',
+    after_status         CHAR(1)        DEFAULT NULL               COMMENT '变更后状态',
+    before_dept_id       BIGINT(20)     DEFAULT NULL               COMMENT '变更前部门ID',
+    after_dept_id        BIGINT(20)     DEFAULT NULL               COMMENT '变更后部门ID',
+    before_keeper_id     BIGINT(20)     DEFAULT NULL               COMMENT '变更前保管人ID',
+    after_keeper_id      BIGINT(20)     DEFAULT NULL               COMMENT '变更后保管人ID',
+    before_location      VARCHAR(200)   DEFAULT NULL               COMMENT '变更前地点',
+    after_location       VARCHAR(200)   DEFAULT NULL               COMMENT '变更后地点',
+    operator_id          BIGINT(20)     NOT NULL                   COMMENT '操作人ID',
+    operation_time       DATETIME       NOT NULL                   COMMENT '操作时间',
+    description          VARCHAR(500)   DEFAULT NULL               COMMENT '变更说明',
+    create_dept          BIGINT(20)     DEFAULT NULL               COMMENT '创建部门',
+    create_by            BIGINT(20)     DEFAULT NULL               COMMENT '创建者',
+    create_time          DATETIME       DEFAULT CURRENT_TIMESTAMP  COMMENT '创建时间',
+    update_by            BIGINT(20)     DEFAULT NULL               COMMENT '更新者',
+    update_time          DATETIME       DEFAULT NULL               COMMENT '更新时间',
+    remark               VARCHAR(500)   DEFAULT NULL               COMMENT '备注',
+    del_flag             BIGINT(20)     DEFAULT 0                  COMMENT '删除标志',
+    PRIMARY KEY (history_id),
+    KEY idx_asset_history_asset (tenant_id, asset_id, operation_time),
+    KEY idx_asset_history_business (tenant_id, business_type, business_id),
+    KEY idx_asset_history_operator (tenant_id, operator_id)
+) ENGINE=InnoDB COMMENT='资产全生命周期履历';
+
 -- 初始分类（应用层同时执行租户内编码唯一性校验）
 INSERT INTO asset_category
     (category_id, tenant_id, parent_id, category_code, category_name, depreciation_years, order_num, status, create_dept, create_by, create_time, remark, del_flag)
@@ -144,6 +201,13 @@ INSERT INTO sys_menu VALUES
     (2021, '分类新增', 2002, 2, '', '', '', 1, 0, 'F', '0', '0', 'asset:category:add', '#', 103, 1, NOW(), NULL, NULL, ''),
     (2022, '分类修改', 2002, 3, '', '', '', 1, 0, 'F', '0', '0', 'asset:category:edit', '#', 103, 1, NOW(), NULL, NULL, ''),
     (2023, '分类删除', 2002, 4, '', '', '', 1, 0, 'F', '0', '0', 'asset:category:remove', '#', 103, 1, NOW(), NULL, NULL, '')
+ON DUPLICATE KEY UPDATE menu_name = VALUES(menu_name), perms = VALUES(perms), update_time = NOW();
+
+INSERT INTO sys_menu VALUES
+    (2040, '领用执行单', 2000, 4, 'issue', 'asset/issue/index', '', 1, 0, 'C', '0', '0', 'asset:issue:list', 'takeaway-box', 103, 1, NOW(), NULL, NULL, '审批通过后的资产领用执行'),
+    (2041, '执行单查询', 2040, 1, '', '', '', 1, 0, 'F', '0', '0', 'asset:issue:query', '#', 103, 1, NOW(), NULL, NULL, ''),
+    (2042, '确认领用出库', 2040, 2, '', '', '', 1, 0, 'F', '0', '0', 'asset:issue:execute', '#', 103, 1, NOW(), NULL, NULL, ''),
+    (2050, '资产履历', 2000, 5, 'history', 'asset/history/index', '', 1, 0, 'C', '0', '0', 'asset:history:list', 'time', 103, 1, NOW(), NULL, NULL, '资产全生命周期变更记录')
 ON DUPLICATE KEY UPDATE menu_name = VALUES(menu_name), perms = VALUES(perms), update_time = NOW();
 
 INSERT INTO sys_menu VALUES

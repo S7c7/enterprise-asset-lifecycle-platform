@@ -73,8 +73,9 @@
         <el-table-column label="保管人" prop="keeperName" width="110" />
         <el-table-column label="存放地点" prop="location" min-width="150" show-overflow-tooltip />
         <el-table-column label="购置日期" prop="purchaseDate" width="115" />
-        <el-table-column label="操作" fixed="right" align="center" width="110">
+        <el-table-column label="操作" fixed="right" align="center" width="165">
           <template #default="scope">
+            <el-button v-hasPermi="['asset:history:list']" link type="primary" icon="Clock" @click="handleHistory(scope.row)">履历</el-button>
             <el-button v-hasPermi="['asset:info:edit']" link type="primary" icon="Edit" @click="handleUpdate(scope.row)" />
             <el-button v-hasPermi="['asset:info:remove']" link type="danger" icon="Delete" @click="handleDelete(scope.row)" />
           </template>
@@ -186,6 +187,7 @@ import { UserVO } from '@/api/system/user/types';
 import UserSelect from '@/components/UserSelect/index.vue';
 
 const { proxy } = getCurrentInstance() as ComponentInternalInstance;
+const router = useRouter();
 const statusOptions = [
   { value: '0', label: '库存' },
   { value: '1', label: '使用中' },
@@ -316,6 +318,7 @@ const handleDelete = async (row?: AssetInfoVO) => {
   proxy?.$modal.msgSuccess('删除成功');
   await getList();
 };
+const handleHistory = (row: AssetInfoVO) => router.push({ path: '/asset/history', query: { assetId: String(row.assetId) } });
 const openKeeperSelect = () => keeperSelectRef.value?.open();
 const handleKeeperSelected = (users: UserVO[]) => {
   const user = users[0];
