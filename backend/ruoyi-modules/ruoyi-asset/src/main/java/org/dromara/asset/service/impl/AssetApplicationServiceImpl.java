@@ -64,7 +64,8 @@ public class AssetApplicationServiceImpl implements IAssetApplicationService {
     private final WorkflowService workflowService;
 
     @Override
-    public AssetApplicationVo queryById(Long applicationId) {
+    public AssetApplicationVo queryById(Long applicationId, Long taskId) {
+        requireReadable(applicationId, taskId);
         AssetApplicationVo vo = baseMapper.selectVoById(applicationId);
         if (vo != null) {
             fillItems(vo);
@@ -99,7 +100,7 @@ public class AssetApplicationServiceImpl implements IAssetApplicationService {
         entity.setFlowCode(FLOW_CODE);
         baseMapper.insert(entity);
         saveItems(entity.getApplicationId(), bo.getItems());
-        return queryById(entity.getApplicationId());
+        return queryById(entity.getApplicationId(), null);
     }
 
     @Override
@@ -119,7 +120,7 @@ public class AssetApplicationServiceImpl implements IAssetApplicationService {
         itemMapper.delete(Wrappers.<AssetApplicationItem>lambdaQuery()
             .eq(AssetApplicationItem::getApplicationId, entity.getApplicationId()));
         saveItems(entity.getApplicationId(), bo.getItems());
-        return queryById(entity.getApplicationId());
+        return queryById(entity.getApplicationId(), null);
     }
 
     @Override
@@ -181,13 +182,26 @@ public class AssetApplicationServiceImpl implements IAssetApplicationService {
         return entity;
     }
 
-    private void requireEditable(AssetApplication entity) {
+    private AssetApplication requireReadable(Long applicationId, Long taskId) {
+        AssetApplication entity = baseMapper.selectById(applicationId);
+        Long userId = LoginHelper.getUserId();
+        boolean administrator = LoginHelper.isSuperAdmin(userId) || LoginHelper.isTenantAdmin();
+        boolean owner = entity != null && userId != null && userId.equals(entity.getApplicantId());
+        boolean workflowParticipant = entity != null && taskId != null
+            && workflowService.canViewBusinessByTask(taskId, applicationId.toString(), userId);
+        if (entity == null || (!administrator && !owner && !workflowParticipant)) {
+            throw new ServiceException("资产申请不存在或无权查看");
+        }
+        return entity;
+    }
+
+    void requireEditable(AssetApplication entity) {
         if (!EDITABLE_STATUSES.contains(entity.getStatus())) {
             throw new ServiceException("当前申请状态不允许修改、删除或重新提交");
         }
     }
 
-    private void validateItems(AssetApplicationBo bo) {
+    void validateItems(AssetApplicationBo bo) {
         boolean assetRequired = !"purchase".equals(bo.getApplicationType());
         Map<Long, AssetInfo> assets = new HashMap<>();
         if (assetRequired) {
@@ -241,7 +255,7 @@ public class AssetApplicationServiceImpl implements IAssetApplicationService {
         }
     }
 
-    private BigDecimal calculateTotal(List<AssetApplicationItemBo> items) {
+    BigDecimal calculateTotal(List<AssetApplicationItemBo> items) {
         return items.stream()
             .map(item -> (item.getEstimatedUnitPrice() == null ? BigDecimal.ZERO : item.getEstimatedUnitPrice())
                 .multiply(BigDecimal.valueOf(item.getQuantity())))

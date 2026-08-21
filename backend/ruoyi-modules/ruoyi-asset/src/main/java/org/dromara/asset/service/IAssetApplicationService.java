@@ -9,7 +9,7 @@ import java.util.Collection;
 
 /** 资产申请服务。 */
 public interface IAssetApplicationService {
-    AssetApplicationVo queryById(Long applicationId);
+    AssetApplicationVo queryById(Long applicationId, Long taskId);
     TableDataInfo<AssetApplicationVo> queryMyPageList(AssetApplicationBo bo, PageQuery pageQuery);
     AssetApplicationVo insertByBo(AssetApplicationBo bo);
     AssetApplicationVo updateByBo(AssetApplicationBo bo);

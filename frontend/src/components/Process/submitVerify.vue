@@ -152,7 +152,7 @@ import {
   currentTaskAllUser,
   getNextNodeList
 } from '@/api/workflow/task';
-import UserSelect from '@/components/UserSelect';
+import UserSelect from '@/components/UserSelect/index.vue';
 
 const { proxy } = getCurrentInstance() as ComponentInternalInstance;
 import { FlowCopyVo, FlowTaskVO, TaskOperationBo } from '@/api/workflow/task/types';

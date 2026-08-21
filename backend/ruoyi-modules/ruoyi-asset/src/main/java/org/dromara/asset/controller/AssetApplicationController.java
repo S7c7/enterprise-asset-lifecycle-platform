@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Arrays;
@@ -45,8 +46,10 @@ public class AssetApplicationController extends BaseController {
 
     @SaCheckPermission("asset:application:query")
     @GetMapping("/{applicationId}")
-    public R<AssetApplicationVo> getInfo(@NotNull(message = "申请主键不能为空") @PathVariable Long applicationId) {
-        return R.ok(applicationService.queryById(applicationId));
+    public R<AssetApplicationVo> getInfo(
+        @NotNull(message = "申请主键不能为空") @PathVariable Long applicationId,
+        @RequestParam(required = false) Long taskId) {
+        return R.ok(applicationService.queryById(applicationId, taskId));
     }
 
     @SaCheckPermission("asset:application:add")

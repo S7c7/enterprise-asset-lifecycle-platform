@@ -19,6 +19,7 @@ cp .env.example .env
 MYSQL_USERNAME
 MYSQL_PASSWORD
 REDIS_PASSWORD
+SA_TOKEN_JWT_SECRET
 ```
 
 短信和第三方登录变量只在启用对应集成时填写。
@@ -33,6 +34,8 @@ mvn -pl ruoyi-admin -am -DskipTests package
 ```
 
 生产环境不要上传 `.env`，应通过部署平台、容器 Secret 或系统环境变量注入同名变量。
+
+`SA_TOKEN_JWT_SECRET` 不提供默认值。请使用密码管理器生成足够长的随机值；缺失时后端应拒绝启动，避免误用公开默认密钥。
 
 ## 4. 前端说明
 

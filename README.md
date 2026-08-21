@@ -157,6 +157,8 @@ org.dromara.asset
 6. **多租户隔离**：四张资产业务表均包含 `tenant_id`，编码唯一性和业务查询都在租户范围内处理。
 7. **流程事件解耦**：通过流程事件同步申请状态，业务服务不直接操作审批任务内部状态。
 8. **安全配置治理**：数据库、Redis 和第三方凭据使用环境变量，本地 `.env` 不进入 Git 仓库。
+9. **访问边界加固**：申请详情同时校验申请所有权或流程任务办理人，阻止通过猜测主键横向读取他人申请。
+10. **可重复质量门禁**：资产领域 21 条自动化测试，前端锁定依赖，并由 GitHub Actions 执行编译、测试、Lint、类型检查与生产构建。
 
 ## 数据模型
 
@@ -251,7 +253,7 @@ cp .env.example .env
 
 ```bash
 cd frontend
-pnpm install
+pnpm install --frozen-lockfile
 pnpm dev
 ```
 
@@ -267,7 +269,8 @@ pnpm dev
 - [ ] 报废鉴定与处置记录
 - [ ] 资产履历与操作时间轴
 - [ ] 部门、分类、状态和价值统计分析
-- [ ] Docker Compose 一键部署与自动化测试
+- [x] 资产领域自动化测试与 GitHub Actions 质量门禁
+- [ ] Docker Compose 一键部署
 
 ## 项目文档
 
@@ -276,7 +279,9 @@ pnpm dev
 - [本地配置](backend/docs/02-local-configuration.md)
 - [系统架构](backend/docs/03-system-architecture.md)
 - [数据库设计](backend/docs/04-database-design.md)
+- [自动化测试与 CI](backend/docs/05-testing-and-ci.md)
 - [实施与排障记录](backend/docs/12-troubleshooting.md)
+- [项目审计整改记录](backend/docs/13-audit-remediation.md)
 
 ## 技术底座与开源说明
 

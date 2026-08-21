@@ -2,12 +2,7 @@
   <div>
     <template v-for="(item, index) in options">
       <template v-if="isValueMatch(item.value)">
-        <span
-          v-if="(item.elTagType === 'default' || item.elTagType === '') && (item.elTagClass === '' || item.elTagClass == null)"
-          :key="item.value"
-          :index="index"
-          :class="item.elTagClass"
-        >
+        <span v-if="!item.elTagType && (item.elTagClass === '' || item.elTagClass == null)" :key="item.value" :index="index" :class="item.elTagClass">
           {{ item.label + ' ' }}
         </span>
         <el-tag
@@ -50,7 +45,7 @@ const props = withDefaults(defineProps<Props>(), {
 
 const values = computed(() => {
   if (props.value === '' || props.value === null || typeof props.value === 'undefined') return [];
-  if (typeof props.value === 'number' || typeof props.value === 'boolean') return [props.value]
+  if (typeof props.value === 'number' || typeof props.value === 'boolean') return [props.value];
   return Array.isArray(props.value) ? props.value.map((item) => '' + item) : String(props.value).split(props.separator);
 });
 
@@ -88,8 +83,8 @@ const handleArray = (array: Array<string | number>) => {
 };
 
 const isValueMatch = (itemValue: any) => {
-  return values.value.some(val => val == itemValue)
-}
+  return values.value.some((val) => val == itemValue);
+};
 </script>
 
 <style lang="scss" scoped>

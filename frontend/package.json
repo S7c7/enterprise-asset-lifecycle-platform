@@ -5,6 +5,7 @@
   "description": "RuoYi-Vue-Plus多租户管理系统",
   "author": "LionLi",
   "license": "MIT",
+  "packageManager": "pnpm@11.19.0",
   "type": "module",
   "scripts": {
     "dev": "vite serve --mode development",
@@ -13,6 +14,7 @@
     "preview": "vite preview",
     "lint:eslint": "eslint",
     "lint:eslint:fix": "eslint --fix",
+    "typecheck:asset": "vue-tsc --noEmit -p tsconfig.asset.json",
     "prettier": "prettier --write ."
   },
   "repository": {
