@@ -50,4 +50,12 @@ public interface AssetInfoMapper extends BaseMapperPlus<AssetInfo, AssetInfoVo> 
         @DataColumn(key = "userName", value = "keeper_id")
     })
     int updateById(@Param(Constants.ENTITY) AssetInfo entity);
+
+    @DataPermission({
+        @DataColumn(key = "deptName", value = "dept_id"),
+        @DataColumn(key = "userName", value = "keeper_id")
+    })
+    default int updateLifecycleState(AssetInfo entity, Wrapper<AssetInfo> wrapper) {
+        return update(entity, wrapper);
+    }
 }

@@ -7,6 +7,8 @@ import org.dromara.asset.mapper.AssetApplicationItemMapper;
 import org.dromara.asset.mapper.AssetApplicationMapper;
 import org.dromara.asset.mapper.AssetCategoryMapper;
 import org.dromara.asset.mapper.AssetInfoMapper;
+import org.dromara.asset.service.IAssetIssueOrderService;
+import org.dromara.common.core.domain.event.ProcessEvent;
 import org.dromara.common.core.enums.BusinessStatusEnum;
 import org.dromara.common.core.exception.ServiceException;
 import org.dromara.common.core.service.WorkflowService;
@@ -27,6 +29,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -44,13 +47,15 @@ class AssetApplicationServiceImplTest {
     private AssetInfoMapper assetInfoMapper;
     @Mock
     private WorkflowService workflowService;
+    @Mock
+    private IAssetIssueOrderService issueOrderService;
 
     private AssetApplicationServiceImpl service;
 
     @BeforeEach
     void setUp() {
         service = new AssetApplicationServiceImpl(
-            applicationMapper, itemMapper, categoryMapper, assetInfoMapper, workflowService);
+            applicationMapper, itemMapper, categoryMapper, assetInfoMapper, workflowService, issueOrderService);
     }
 
     @Test
@@ -130,6 +135,24 @@ class AssetApplicationServiceImplTest {
         AssetApplication application = application(10L);
         application.setStatus(BusinessStatusEnum.WAITING.getStatus());
         assertThrows(ServiceException.class, () -> service.requireEditable(application));
+    }
+
+    @Test
+    @DisplayName("流程结束后更新申请状态并触发领用执行单生成")
+    void finishedWorkflowTriggersIssueOrderCreation() {
+        AssetApplication application = application(10L);
+        application.setApplicationType("use");
+        when(applicationMapper.selectById(1L)).thenReturn(application);
+        ProcessEvent event = new ProcessEvent();
+        event.setBusinessId("1");
+        event.setStatus(BusinessStatusEnum.FINISH.getStatus());
+        event.setSubmit(false);
+
+        service.processHandler(event);
+
+        assertEquals(BusinessStatusEnum.FINISH.getStatus(), application.getStatus());
+        verify(applicationMapper).updateById(application);
+        verify(issueOrderService).createFromApprovedApplication(application);
     }
 
     private MockedStatic<LoginHelper> loginAs(Long userId, boolean superAdmin) {

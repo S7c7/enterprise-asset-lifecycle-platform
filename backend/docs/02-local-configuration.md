@@ -16,6 +16,9 @@ cp .env.example .env
 至少填写：
 
 ```text
+MYSQL_HOST（本机一般为 localhost）
+MYSQL_PORT（标准端口为 3306，本项目现有本地实例为 3307）
+MYSQL_DATABASE（默认 ry-vue）
 MYSQL_USERNAME
 MYSQL_PASSWORD
 REDIS_PASSWORD
